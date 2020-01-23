@@ -17,7 +17,7 @@ typedef signed long long big_int;
 // Configuration
 constexpr big_int OMP_THREADS = 8;
 constexpr big_int MIN_NUMBER = 0;
-constexpr big_int MAX_NUMBER = 100000000;
+constexpr big_int MAX_NUMBER = 1000000000;
 constexpr big_int NUMBER_COUNT = MAX_NUMBER + 1;
 
 bool* initial_prime_numbers()
@@ -33,20 +33,17 @@ bool* initial_prime_numbers()
 	return prime_numbers;
 }
 
-
-bool* calculate_prime_numbers()
+bool* calculate_prime_numbers(bool* prime_numbers)
 {
-	// Get initial prime number array
-	bool* prime_numbers = initial_prime_numbers();
-
 	// Mark 0 and 1 as non-primes (by definition)
 	prime_numbers[0] = false;
 	prime_numbers[1] = false;
 
 	// Calculate maximal divisor that may exclude non-primes
 	big_int max_divisor = (big_int) ceil(sqrt(MAX_NUMBER));
+
 	// For each possible divisor
-	#pragma omp parallel for shared(prime_numbers, max_divisor) schedule(dynamic, 10)
+	#pragma omp parallel for shared(prime_numbers, max_divisor) schedule(dynamic)
 	for (big_int divisor = 2; divisor <= max_divisor; divisor++)
 	{
 		// If it is still considered prime (if not, then all its multiples all already marked as non-primes also)
@@ -59,8 +56,6 @@ bool* calculate_prime_numbers()
 			}
 		}
 	}
-
-	return prime_numbers;
 }
 
 void dump_prime_numbers(bool* prime_numbers)
@@ -112,9 +107,12 @@ int main()
 	// Set number of OpenMP threads
 	omp_set_num_threads(OMP_THREADS);
 
+	// Get initial prime number array
+	bool* prime_numbers = initial_prime_numbers();
+
 	// Measure prime number calculation time
 	clock_t start = clock();
-	bool* prime_numbers = calculate_prime_numbers();
+	calculate_prime_numbers(prime_numbers);
 	clock_t stop = clock();
 
 	// Print calculation time to the console
