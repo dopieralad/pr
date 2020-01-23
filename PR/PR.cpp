@@ -23,18 +23,23 @@ int* initial_prime_numbers()
 
 void print_prime_numbers(int* prime_numbers)
 {
-	printf("Prime numbers are: ");
+	FILE* file;
+	fopen_s(&file, ".\\primes.txt", "w");
+
+	fprintf_s(file, "Prime numbers are:\n");
 
 	for (int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
 	{
 		int is_prime = prime_numbers[number];
 		if (is_prime)
 		{
-			printf("%d ", number);
+			fprintf_s(file, "%d\n", number);
 		}
 	}
 
-	printf("\n");
+	fprintf_s(file, "\n");
+
+	fclose(file);
 }
 
 int* calculate_prime_numbers()
