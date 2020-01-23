@@ -1,3 +1,8 @@
+/*
+* A Visual Studio pre-compiled header file.
+* This has to be at the top, because everything
+* that comes before it is discarded.
+*/
 #include "pch.h"
 
 #include <stdio.h>
@@ -5,45 +10,77 @@
 #include <math.h>
 #include <time.h>
 
+// Type aliases
 typedef unsigned long long big_int;
-typedef char boolean;
 
+// Configuration
 constexpr big_int MIN_NUMBER = 0;
 constexpr big_int MAX_NUMBER = 1000000000;
 constexpr big_int NUMBER_COUNT = MAX_NUMBER + 1;
 
-constexpr char TRUE = 1;
-constexpr char FALSE = 0;
-
-boolean* initial_prime_numbers()
+bool* initial_prime_numbers()
 {
-	boolean* prime_numbers = (boolean*)malloc(NUMBER_COUNT * sizeof(boolean));
+	bool* prime_numbers = (bool*)malloc(NUMBER_COUNT * sizeof(bool)); // Allocate enough memory
 
+	// Mark all numbers as primes initially
 	for (big_int number = 0; number < NUMBER_COUNT; number++)
 	{
-		prime_numbers[number] = TRUE;
+		prime_numbers[number] = true;
 	}
 
 	return prime_numbers;
 }
 
-void print_prime_numbers(boolean* prime_numbers)
+
+bool* calculate_prime_numbers()
 {
+	// Get initial prime number array
+	bool* prime_numbers = initial_prime_numbers();
+
+	// Mark 0 and 1 as non-primes (by definition)
+	prime_numbers[0] = false;
+	prime_numbers[1] = false;
+
+	// Calculate maximal divisor that may exclude non-primes
+	long double max_divisor = sqrt(MAX_NUMBER);
+	// For each possible divisor
+	for (big_int divisor = 2; divisor <= max_divisor; divisor++)
+	{
+		// If it is still considered prime (if not, then all its multiples all already marked as non-primes also)
+		if (prime_numbers[divisor] == true)
+		{
+			// Mark all multiples as non-primes
+			for (big_int multiple = 2 * divisor; multiple <= MAX_NUMBER; multiple += divisor)
+			{
+				prime_numbers[multiple] = false;
+			}
+		}
+	}
+
+	return prime_numbers;
+}
+
+void dump_prime_numbers(bool* prime_numbers)
+{
+	// Open an output file
 	FILE* file;
 	fopen_s(&file, ".\\primes.txt", "w");
 
+	// Count prime numbers
 	big_int found = 0;
 	for (big_int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
 	{
 		int is_prime = prime_numbers[number];
-		if (is_prime == TRUE)
+		if (is_prime == true)
 		{
 			found++;
 		}
 	}
 
+	// Print summary line
 	fprintf_s(file, "Min: '%llu' Max: '%llu' Found: '%llu'\n", MIN_NUMBER, MAX_NUMBER, found);
 
+	// Print primes, 10 per each line
 	int line_counter = 0;
 	for (big_int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
 	{
@@ -60,47 +97,27 @@ void print_prime_numbers(boolean* prime_numbers)
 		}
 	}
 
+	// End a file with a newline
 	fprintf_s(file, "\n");
 
+	// Close the output file
 	fclose(file);
-}
-
-boolean* calculate_prime_numbers()
-{
-	boolean* prime_numbers = initial_prime_numbers();
-
-	prime_numbers[0] = FALSE;
-	prime_numbers[1] = FALSE;
-
-	long double max_divisor = sqrt(MAX_NUMBER);
-	for (big_int divisor = 2; divisor <= max_divisor; divisor++)
-	{
-		if (prime_numbers[divisor] == TRUE) // Divisor is still considered prime
-		{
-			for (big_int multiple = 2 * divisor; multiple <= MAX_NUMBER; multiple += divisor)
-			{
-				prime_numbers[multiple] = FALSE;
-			}
-		}
-	}
-
-	return prime_numbers;
-}
-
-void measure_prime_calculations()
-{
-	clock_t start = clock();
-	boolean* prime_numbers = calculate_prime_numbers();
-	clock_t stop = clock();
-
-	double elapsed_seconds = ((stop - start) / 1000.0);
-	printf("Calculations took: '%lf' seconds.", elapsed_seconds);
-
-	print_prime_numbers(prime_numbers);
-	delete prime_numbers;
 }
 
 int main()
 {
-	measure_prime_calculations();
+	// Measure prime number calculation time
+	clock_t start = clock();
+	bool* prime_numbers = calculate_prime_numbers();
+	clock_t stop = clock();
+
+	// Print calculation time to the console
+	double elapsed_seconds = ((stop - start) / 1000.0);
+	printf("Calculations took: '%lf' seconds.", elapsed_seconds);
+
+	// Dump prime numbers to the output file
+	dump_prime_numbers(prime_numbers);
+
+	// Cleanup
+	delete prime_numbers;
 }
