@@ -2,9 +2,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <time.h>
 
-constexpr int MIN_NUMBER = 50;
+constexpr int MIN_NUMBER = 0;
 constexpr int MAX_NUMBER = 100;
 constexpr int NUMBER_COUNT = MAX_NUMBER - MIN_NUMBER + 1;
 
@@ -77,7 +78,8 @@ void calculate_prime_numbers()
 		prime_numbers[index_for_number(1)] = 0;
 	}
 
-	for (int number = 2; number <= MAX_NUMBER; number++)
+	double max_divisor = sqrt(MAX_NUMBER);
+	for (int number = 2; number <= max_divisor; number++)
 	{
 		for (int multiple = 2 * number; multiple <= MAX_NUMBER; multiple += number)
 		{
