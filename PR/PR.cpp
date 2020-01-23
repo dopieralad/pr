@@ -7,7 +7,7 @@
 
 constexpr int MIN_NUMBER = 0;
 constexpr int MAX_NUMBER = 100;
-constexpr int NUMBER_COUNT = MAX_NUMBER - MIN_NUMBER + 1;
+constexpr int NUMBER_COUNT = MAX_NUMBER + 1;
 
 int* initial_prime_numbers()
 {
@@ -21,45 +21,16 @@ int* initial_prime_numbers()
 	return prime_numbers;
 }
 
-int is_within_range(int number)
-{
-	return MIN_NUMBER <= number && number <= MAX_NUMBER;
-}
-
-int index_for_number(int number)
-{
-	if (is_within_range(number))
-	{
-		return number - MIN_NUMBER;
-	}
-	else
-	{
-		return -1;
-	}
-}
-
-int number_for_index(int index)
-{
-	if (0 <= index && index < NUMBER_COUNT)
-	{
-		return index + MIN_NUMBER;
-	}
-	else
-	{
-		return -1;
-	}
-}
-
 void print_prime_numbers(int* prime_numbers)
 {
 	printf("Prime numbers are: ");
 
-	for (int index = 0; index < NUMBER_COUNT; index++)
+	for (int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
 	{
-		int is_prime = prime_numbers[index];
+		int is_prime = prime_numbers[number];
 		if (is_prime)
 		{
-			printf("%d ", number_for_index(index));
+			printf("%d ", number);
 		}
 	}
 
@@ -70,22 +41,17 @@ void calculate_prime_numbers()
 {
 	int* prime_numbers = initial_prime_numbers();
 
-	if (is_within_range(0)) {
-		prime_numbers[index_for_number(0)] = 0;
-	}
-
-	if (is_within_range(1)) {
-		prime_numbers[index_for_number(1)] = 0;
-	}
+	prime_numbers[0] = 0;
+	prime_numbers[1] = 0;
 
 	double max_divisor = sqrt(MAX_NUMBER);
-	for (int number = 2; number <= max_divisor; number++)
+	for (int divisor = 2; divisor <= max_divisor; divisor++)
 	{
-		for (int multiple = 2 * number; multiple <= MAX_NUMBER; multiple += number)
+		if (prime_numbers[divisor] == 1) // Divisor is still considered prime
 		{
-			if (is_within_range(multiple))
+			for (int multiple = 2 * divisor; multiple <= MAX_NUMBER; multiple += divisor)
 			{
-				prime_numbers[index_for_number(multiple)] = 0;
+				prime_numbers[multiple] = 0;
 			}
 		}
 	}
