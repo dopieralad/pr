@@ -9,13 +9,15 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <omp.h>
 
 // Type aliases
-typedef unsigned long long big_int;
+typedef signed long long big_int;
 
 // Configuration
+constexpr big_int OMP_THREADS = 8;
 constexpr big_int MIN_NUMBER = 0;
-constexpr big_int MAX_NUMBER = 1000000000;
+constexpr big_int MAX_NUMBER = 100000000;
 constexpr big_int NUMBER_COUNT = MAX_NUMBER + 1;
 
 bool* initial_prime_numbers()
@@ -42,8 +44,9 @@ bool* calculate_prime_numbers()
 	prime_numbers[1] = false;
 
 	// Calculate maximal divisor that may exclude non-primes
-	long double max_divisor = sqrt(MAX_NUMBER);
+	big_int max_divisor = (big_int) ceil(sqrt(MAX_NUMBER));
 	// For each possible divisor
+	#pragma omp parallel for shared(prime_numbers, max_divisor) schedule(dynamic, 10)
 	for (big_int divisor = 2; divisor <= max_divisor; divisor++)
 	{
 		// If it is still considered prime (if not, then all its multiples all already marked as non-primes also)
@@ -70,7 +73,7 @@ void dump_prime_numbers(bool* prime_numbers)
 	big_int found = 0;
 	for (big_int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
 	{
-		int is_prime = prime_numbers[number];
+		bool is_prime = prime_numbers[number];
 		if (is_prime == true)
 		{
 			found++;
@@ -106,6 +109,9 @@ void dump_prime_numbers(bool* prime_numbers)
 
 int main()
 {
+	// Set number of OpenMP threads
+	omp_set_num_threads(OMP_THREADS);
+
 	// Measure prime number calculation time
 	clock_t start = clock();
 	bool* prime_numbers = calculate_prime_numbers();
