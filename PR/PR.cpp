@@ -7,7 +7,7 @@
 
 typedef unsigned long long big_int;
 constexpr big_int MIN_NUMBER = 0;
-constexpr big_int MAX_NUMBER = 21474836;
+constexpr big_int MAX_NUMBER = 100;
 constexpr big_int NUMBER_COUNT = MAX_NUMBER + 1;
 
 big_int* initial_prime_numbers()
@@ -27,14 +27,31 @@ void print_prime_numbers(big_int* prime_numbers)
 	FILE* file;
 	fopen_s(&file, ".\\primes.txt", "w");
 
-	fprintf_s(file, "Prime numbers are:\n");
-
+	big_int found = 0;
 	for (big_int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
 	{
 		int is_prime = prime_numbers[number];
 		if (is_prime)
 		{
-			fprintf_s(file, "%llu\n", number);
+			found++;
+		}
+	}
+
+	fprintf_s(file, "Min: '%llu' Max: '%llu' Found: '%llu'\n", MIN_NUMBER, MAX_NUMBER, found);
+
+	int line_counter = 0;
+	for (big_int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
+	{
+		int is_prime = prime_numbers[number];
+		if (is_prime)
+		{
+			fprintf_s(file, "%llu ", number);
+
+			if (line_counter++ >= 10)
+			{
+				line_counter = 0;
+				fprintf_s(file, "\n");
+			}
 		}
 	}
 
