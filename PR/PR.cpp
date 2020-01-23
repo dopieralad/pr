@@ -5,15 +5,16 @@
 #include <math.h>
 #include <time.h>
 
-constexpr int MIN_NUMBER = 0;
-constexpr int MAX_NUMBER = 1000000;
-constexpr int NUMBER_COUNT = MAX_NUMBER + 1;
+typedef unsigned long long big_int;
+constexpr big_int MIN_NUMBER = 0;
+constexpr big_int MAX_NUMBER = 21474836;
+constexpr big_int NUMBER_COUNT = MAX_NUMBER + 1;
 
-int* initial_prime_numbers()
+big_int* initial_prime_numbers()
 {
-	int* prime_numbers = (int*) malloc(NUMBER_COUNT * sizeof(int));
+	big_int* prime_numbers = (big_int*)malloc(NUMBER_COUNT * sizeof(big_int));
 
-	for (int number = 0; number < NUMBER_COUNT; number++)
+	for (big_int number = 0; number < NUMBER_COUNT; number++)
 	{
 		prime_numbers[number] = 1;
 	}
@@ -21,19 +22,19 @@ int* initial_prime_numbers()
 	return prime_numbers;
 }
 
-void print_prime_numbers(int* prime_numbers)
+void print_prime_numbers(big_int* prime_numbers)
 {
 	FILE* file;
 	fopen_s(&file, ".\\primes.txt", "w");
 
 	fprintf_s(file, "Prime numbers are:\n");
 
-	for (int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
+	for (big_int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
 	{
 		int is_prime = prime_numbers[number];
 		if (is_prime)
 		{
-			fprintf_s(file, "%d\n", number);
+			fprintf_s(file, "%llu\n", number);
 		}
 	}
 
@@ -42,19 +43,19 @@ void print_prime_numbers(int* prime_numbers)
 	fclose(file);
 }
 
-int* calculate_prime_numbers()
+big_int* calculate_prime_numbers()
 {
-	int* prime_numbers = initial_prime_numbers();
+	big_int* prime_numbers = initial_prime_numbers();
 
 	prime_numbers[0] = 0;
 	prime_numbers[1] = 0;
 
-	double max_divisor = sqrt(MAX_NUMBER);
-	for (int divisor = 2; divisor <= max_divisor; divisor++)
+	long double max_divisor = sqrt(MAX_NUMBER);
+	for (big_int divisor = 2; divisor <= max_divisor; divisor++)
 	{
 		if (prime_numbers[divisor] == 1) // Divisor is still considered prime
 		{
-			for (int multiple = 2 * divisor; multiple <= MAX_NUMBER; multiple += divisor)
+			for (big_int multiple = 2 * divisor; multiple <= MAX_NUMBER; multiple += divisor)
 			{
 				prime_numbers[multiple] = 0;
 			}
@@ -67,7 +68,7 @@ int* calculate_prime_numbers()
 void measure_prime_calculations()
 {
 	clock_t start = clock();
-	int* prime_numbers = calculate_prime_numbers();
+	big_int* prime_numbers = calculate_prime_numbers();
 	clock_t stop = clock();
 
 	print_prime_numbers(prime_numbers);
