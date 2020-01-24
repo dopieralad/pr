@@ -17,7 +17,7 @@ typedef signed long long big_int;
 // Configuration
 constexpr big_int OMP_THREADS = 8;
 constexpr big_int MIN_NUMBER = 0;
-constexpr big_int MAX_NUMBER = 1000000000;
+constexpr big_int MAX_NUMBER = 100000000;
 constexpr big_int NUMBER_COUNT = MAX_NUMBER + 1;
 
 bool* initial_prime_numbers()
@@ -33,14 +33,14 @@ bool* initial_prime_numbers()
 	return prime_numbers;
 }
 
-bool* calculate_prime_numbers(bool* prime_numbers)
+void calculate_prime_numbers(bool* prime_numbers)
 {
 	// Mark 0 and 1 as non-primes (by definition)
 	prime_numbers[0] = false;
 	prime_numbers[1] = false;
 
 	// Calculate maximal divisor that may exclude non-primes
-	big_int max_divisor = (big_int) ceil(sqrt(MAX_NUMBER));
+	big_int max_divisor = (big_int)ceil(sqrt(MAX_NUMBER));
 
 	// For each possible divisor
 	#pragma omp parallel for shared(prime_numbers, max_divisor) schedule(dynamic)
@@ -62,7 +62,7 @@ void dump_prime_numbers(bool* prime_numbers)
 {
 	// Open an output file
 	FILE* file;
-	fopen_s(&file, ".\\primes.txt", "w");
+	fopen_s(&file, "C:\\Users\\Daniel\\Desktop\\primes.txt", "w");
 
 	// Count prime numbers
 	big_int found = 0;
@@ -76,7 +76,7 @@ void dump_prime_numbers(bool* prime_numbers)
 	}
 
 	// Print summary line
-	fprintf_s(file, "Min: '%llu' Max: '%llu' Found: '%llu'\n", MIN_NUMBER, MAX_NUMBER, found);
+	fprintf_s(file, "Min: '%lli' Max: '%lli' Found: '%lli'\n", MIN_NUMBER, MAX_NUMBER, found);
 
 	// Print primes, 10 per each line
 	int line_counter = 0;
@@ -85,7 +85,7 @@ void dump_prime_numbers(bool* prime_numbers)
 		int is_prime = prime_numbers[number];
 		if (is_prime)
 		{
-			fprintf_s(file, "%llu ", number);
+			fprintf_s(file, "%lli ", number);
 
 			if (line_counter++ >= 10)
 			{
