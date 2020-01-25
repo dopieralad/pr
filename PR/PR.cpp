@@ -17,7 +17,7 @@ typedef signed long long big_int;
 // Configuration
 constexpr big_int OMP_THREADS = 8;
 constexpr big_int MIN_NUMBER = 0;
-constexpr big_int MAX_NUMBER = 100000000;
+constexpr big_int MAX_NUMBER = 1000000000;
 constexpr big_int NUMBER_COUNT = MAX_NUMBER + 1;
 
 bool* initial_prime_numbers()
@@ -42,19 +42,26 @@ void calculate_prime_numbers(bool* prime_numbers)
 	// Calculate maximal divisor that may exclude non-primes
 	big_int max_divisor = (big_int)ceil(sqrt(MAX_NUMBER));
 
-	// For each possible divisor
-	#pragma omp parallel for shared(prime_numbers, max_divisor) schedule(dynamic)
-	for (big_int divisor = 2; divisor <= max_divisor; divisor++)
+		#pragma omp parallel shared(prime_numbers, max_divisor)
 	{
-		// If it is still considered prime (if not, then all its multiples all already marked as non-primes also)
-		if (prime_numbers[divisor] == true)
+		printf("Thread: '%d' has started!\n", omp_get_thread_num());
+
+		// For each possible divisor
+		#pragma omp for schedule(static) nowait
+		for (big_int divisor = 2; divisor <= max_divisor; divisor++)
 		{
-			// Mark all multiples as non-primes
-			for (big_int multiple = 2 * divisor; multiple <= MAX_NUMBER; multiple += divisor)
+			// If it is still considered prime (if not, then all its multiples are all already marked as non-primes also)
+			if (prime_numbers[divisor] == true)
 			{
-				prime_numbers[multiple] = false;
+				// Mark all multiples as non-primes
+				for (big_int multiple = 2 * divisor; multiple <= MAX_NUMBER; multiple += divisor)
+				{
+					prime_numbers[multiple] = false;
+				}
 			}
 		}
+
+		printf("Thread: '%d' has finished!\n", omp_get_thread_num());
 	}
 }
 
@@ -79,7 +86,7 @@ void dump_prime_numbers(bool* prime_numbers)
 	fprintf_s(file, "Min: '%lli' Max: '%lli' Found: '%lli'\n", MIN_NUMBER, MAX_NUMBER, found);
 
 	// Print primes, 10 per each line
-	int line_counter = 0;
+	int line_counter = 1;
 	for (big_int number = MIN_NUMBER; number <= MAX_NUMBER; number++)
 	{
 		int is_prime = prime_numbers[number];
@@ -89,7 +96,7 @@ void dump_prime_numbers(bool* prime_numbers)
 
 			if (line_counter++ >= 10)
 			{
-				line_counter = 0;
+				line_counter = 1;
 				fprintf_s(file, "\n");
 			}
 		}
